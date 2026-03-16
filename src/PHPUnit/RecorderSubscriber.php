@@ -19,8 +19,8 @@ final class RecorderSubscriber implements PreparationStartedSubscriber
             return;
         }
 
-        RecorderHttpClient::setMode(RecorderMode::PassThrough);
-        RecorderHttpClient::setRecord('default.har');
+        $defaultMode = RecorderMode::NewEpisodes;
+        $defaultRecord = $test->methodName().' .har';
 
         $className = $test->className();
         $methodName = $test->methodName();
@@ -42,11 +42,7 @@ final class RecorderSubscriber implements PreparationStartedSubscriber
             $record ??= $inst->record;
         }
 
-        if (!$record) {
-            return;
-        }
-
-        RecorderHttpClient::setMode($mode ?? RecorderMode::Playback);
-        RecorderHttpClient::setRecord($record);
+        RecorderHttpClient::setMode($mode ?? $defaultMode);
+        RecorderHttpClient::setRecord($record ?? $defaultRecord);
     }
 }
