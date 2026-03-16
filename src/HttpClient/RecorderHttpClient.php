@@ -18,7 +18,7 @@ final class RecorderHttpClient implements HttpClientInterface
 {
     use AsyncDecoratorTrait;
 
-    private static RecorderMode $mode = RecorderMode::PASS_THROUGH;
+    private static RecorderMode $mode = RecorderMode::PassThrough;
     private static string $record = 'default.har';
 
     public function __construct(
@@ -41,21 +41,21 @@ final class RecorderHttpClient implements HttpClientInterface
 
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
-        if (RecorderMode::PASS_THROUGH === self::$mode) {
+        if (RecorderMode::PassThrough === self::$mode) {
             return $this->inner->request($method, $url, $options);
         }
 
         $har = $this->store->load(self::$record);
 
-        if (RecorderMode::PLAYBACK === self::$mode) {
+        if (RecorderMode::Playback === self::$mode) {
             return $this->playback($har, $method, $url, $options);
         }
 
-        if (RecorderMode::RECORD === self::$mode) {
+        if (RecorderMode::Record === self::$mode) {
             return $this->record($har, $method, $url, $options);
         }
 
-        if (RecorderMode::NEW_EPISODES === self::$mode) {
+        if (RecorderMode::NewEpisodes === self::$mode) {
             try {
                 return $this->playback($har, $method, $url, $options);
             } catch (TransportException) {

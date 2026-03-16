@@ -13,7 +13,7 @@ final class RecorderSubscriber implements PreparationStartedSubscriber
 {
     public function notify(PreparationStarted $event): void
     {
-        RecorderHttpClient::setMode(RecorderMode::PASS_THROUGH);
+        RecorderHttpClient::setMode(RecorderMode::PassThrough);
         RecorderHttpClient::setRecord('default.har');
 
         $test = $event->test();
@@ -46,7 +46,7 @@ final class RecorderSubscriber implements PreparationStartedSubscriber
             return;
         }
 
-        RecorderHttpClient::setMode($mode ?? RecorderMode::PLAYBACK);
+        RecorderHttpClient::setMode($mode ?? RecorderMode::Playback);
         RecorderHttpClient::setRecord($record);
     }
 }

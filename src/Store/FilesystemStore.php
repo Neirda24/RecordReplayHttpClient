@@ -5,6 +5,9 @@ namespace Symfony\HttpClientRecorderBundle\Store;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\HttpClientRecorderBundle\Har\HarFile;
 
+/**
+ * @psalm-import-type HarData from HarFile
+ */
 final class FilesystemStore implements StoreInterface
 {
     public function __construct(private string $directory, private Filesystem $filesystem)
@@ -30,9 +33,10 @@ final class FilesystemStore implements StoreInterface
             return HarFile::create();
         }
 
-        return new HarFile(
-            json_decode(file_get_contents($path), true, 512, \JSON_THROW_ON_ERROR)
-        );
+        /** @var HarData $har */
+        $har = json_decode(file_get_contents($path), true, 512, \JSON_THROW_ON_ERROR);
+
+        return new HarFile($har);
     }
 
     public function save(string $name, HarFile $har): void
