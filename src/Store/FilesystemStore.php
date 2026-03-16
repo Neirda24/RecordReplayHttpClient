@@ -22,6 +22,13 @@ final class FilesystemStore implements StoreInterface
 
     private function path(string $name): string
     {
+        // TODO: throw if not absolute
+        // TODO create directory not in construct
+        // TODO create directory only if test mode ?
+        if ($this->filesystem->isAbsolutePath($name)) {
+            return $name;
+        }
+
         return $this->directory.DIRECTORY_SEPARATOR.$name;
     }
 
