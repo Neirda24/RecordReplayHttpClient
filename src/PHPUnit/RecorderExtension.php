@@ -14,7 +14,7 @@ final class RecorderExtension implements Extension
         $defaultDirectory = null;
 
         if ($parameters->has('defaultDirectory')) {
-            $defaultDirectory = $parameters->get('defaultDirectory');
+            $defaultDirectory = \realpath($parameters->get('defaultDirectory'));
         }
 
         $defaultDirectory ??= \dirname($configuration->configurationFile()).'/tests/fixtures/records/';
