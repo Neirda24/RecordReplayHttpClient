@@ -4,7 +4,7 @@ namespace Symfony\HttpClientRecorderBundle\Attribute;
 
 use Symfony\HttpClientRecorderBundle\Enum\RecorderMode;
 
-#[\Attribute(\Attribute::TARGET_METHOD)]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
 final readonly class UseRecord
 {
     public function __construct(

@@ -10,7 +10,7 @@ use Symfony\HttpClientRecorderBundle\Har\HarFile;
 final class DefaultMatcher implements MatcherInterface
 {
     /**
-     * @param HarEntry $harEntry
+     * @psalm-param HarEntry $harEntry
      */
     public function matches(
         array $harEntry,

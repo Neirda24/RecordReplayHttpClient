@@ -9,11 +9,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\HttpClientRecorderBundle\Matcher\MatcherInterface;
 
 /**
- * @psalm-type HarLog = array{
- *     version: string,
- *     creator: array{name: string},
- *     entries: list<HarEntry>,
- * }
  * @psalm-type HarEntry = array{
  *     startedDateTime: string,
  *     request: array{
@@ -30,14 +25,17 @@ use Symfony\HttpClientRecorderBundle\Matcher\MatcherInterface;
  *         },
  *     },
  * }
- * @psalm-type HarData = array{
- *     log: HarLog,
+ * @psalm-type HarLog = array{
+ *     version: string,
+ *     creator: array{name: string},
+ *     entries: list<HarEntry>,
  * }
+ * @psalm-type HarData = array{log: HarLog}
  */
 final class HarFile
 {
     /**
-     * @param HarData $har
+     * @psalm-param HarData $har
      */
     public function __construct(private array $har)
     {
@@ -75,7 +73,7 @@ final class HarFile
 
     public function addEntry(MatcherInterface $matcher, ResponseInterface $response, string $method, string $url, array $options = []): self
     {
-        /** @var HarEntry $entry */
+        /** @psalm-var HarEntry $entry */
         $entry = [
             'startedDateTime' => (new DatePoint('now'))->format('Y-m-d\TH:i:s.v\Z'),
             'request' => [
@@ -108,7 +106,7 @@ final class HarFile
     }
 
     /**
-     * @return HarData
+     * @psalm-return HarData
      */
     public function toArray(): array
     {
@@ -116,7 +114,7 @@ final class HarFile
     }
 
     /**
-     * @param HarEntry['response']['content'] $content
+     * @psalm-param HarEntry['response']['content'] $content
      */
     private function decodeContent(array $content): string
     {

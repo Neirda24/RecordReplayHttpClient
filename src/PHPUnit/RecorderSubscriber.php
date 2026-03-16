@@ -13,14 +13,14 @@ final class RecorderSubscriber implements PreparationStartedSubscriber
 {
     public function notify(PreparationStarted $event): void
     {
-        RecorderHttpClient::setMode(RecorderMode::PassThrough);
-        RecorderHttpClient::setRecord('default.har');
-
         $test = $event->test();
 
         if (!$test instanceof TestMethod) {
             return;
         }
+
+        RecorderHttpClient::setMode(RecorderMode::PassThrough);
+        RecorderHttpClient::setRecord('default.har');
 
         $className = $test->className();
         $methodName = $test->methodName();

@@ -33,7 +33,7 @@ final class FilesystemStore implements StoreInterface
             return HarFile::create();
         }
 
-        /** @var HarData $har */
+        /** @psalm-var HarData $har */
         $har = json_decode(file_get_contents($path), true, 512, \JSON_THROW_ON_ERROR);
 
         return new HarFile($har);
