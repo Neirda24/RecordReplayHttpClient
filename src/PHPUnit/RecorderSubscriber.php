@@ -28,10 +28,7 @@ final class RecorderSubscriber implements PreparationStartedSubscriber
             return;
         }
 
-        $className = $test->className();
-        $methodName = $test->methodName();
-
-        $attributeData = $this->loadUseRecordAttribute($className, $methodName);
+        $attributeData = $this->loadUseRecordAttribute($test);
 
         if (false === $attributeData) {
             return;
@@ -54,30 +51,36 @@ final class RecorderSubscriber implements PreparationStartedSubscriber
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param class-string $methodName
-     *
      * @psalm-return false|array{0: string, 1: RecorderMode::*|string}
      */
-    private function loadUseRecordAttribute(string $className, string $methodName): false|array
+    private function loadUseRecordAttribute(TestMethod $test): false|array
     {
+        $className = $test->className();
+        $methodName = $test->methodName();
+
         $attributeFound = false;
         $mode = null;
         $record = null;
 
         if ($attributes = (new \ReflectionClass($className))->getAttributes(UseRecord::class)) {
+            // TODO: using mode record could lead to unwanted side effects : it would override each other.
+
             /** @var UseRecord $inst */
             $inst = $attributes[0]->newInstance();
-            $record = $inst->record;
+            $record = $inst->record ?? "./{$className}.har"; // TODO: or "@{$className}.har" ? (defaultDirectory)
             $mode = $inst->mode;
             $attributeFound = true;
         }
 
         if ($attributes = (new \ReflectionMethod($className, $methodName))->getAttributes(UseRecord::class)) {
+            if ($attributeFound) {
+                throw new \LogicException('Cannot use #[UseRecord] attribute on both class and method.');
+            }
+
             /** @var UseRecord $inst */
             $inst = $attributes[0]->newInstance();
             $record = $inst->record;
-            $mode = $inst->mode ?: $mode;
+            $mode = $inst->mode;
             $attributeFound = true;
         }
 
