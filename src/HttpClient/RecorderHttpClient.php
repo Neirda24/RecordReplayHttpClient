@@ -8,17 +8,20 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Symfony\HttpClientRecorderBundle\Enum\RecorderMode;
 use Symfony\HttpClientRecorderBundle\Har\HarFile;
 use Symfony\HttpClientRecorderBundle\Matcher\DefaultMatcher;
 use Symfony\HttpClientRecorderBundle\Matcher\MatcherInterface;
+use Symfony\HttpClientRecorderBundle\RecorderMode;
 use Symfony\HttpClientRecorderBundle\Store\StoreInterface;
 
 final class RecorderHttpClient implements HttpClientInterface
 {
     use AsyncDecoratorTrait;
 
-    private static RecorderMode $mode = RecorderMode::PassThrough;
+    /**
+     * @psalm-var RecorderMode::*|string
+     */
+    private static string $mode = RecorderMode::PASSTHROUGH;
     private static string $record = 'default.har';
 
     public function __construct(
@@ -29,7 +32,10 @@ final class RecorderHttpClient implements HttpClientInterface
         $this->client = $inner;
     }
 
-    public static function setMode(RecorderMode $mode): void
+    /**
+     * @psalm-param RecorderMode::*|string $mode
+     */
+    public static function setMode(string $mode): void
     {
         self::$mode = $mode;
     }
@@ -41,23 +47,23 @@ final class RecorderHttpClient implements HttpClientInterface
 
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
-        if (RecorderMode::PassThrough === self::$mode) {
+        if (RecorderMode::PASSTHROUGH === self::$mode) {
             return $this->inner->request($method, $url, $options);
         }
 
         $har = $this->store->load(self::$record);
 
-        if (RecorderMode::Playback === self::$mode) {
-            return $this->playback($har, $method, $url, $options);
+        if (RecorderMode::REPLAY === self::$mode) {
+            return $this->replay($har, $method, $url, $options);
         }
 
-        if (RecorderMode::Record === self::$mode) {
+        if (RecorderMode::RECORD === self::$mode) {
             return $this->record($har, $method, $url, $options);
         }
 
-        if (RecorderMode::NewEpisodes === self::$mode) {
+        if (RecorderMode::RECORD_IF_MISSING_AND_REPLAY === self::$mode) {
             try {
-                return $this->playback($har, $method, $url, $options);
+                return $this->replay($har, $method, $url, $options);
             } catch (TransportException) {
                 return $this->record($har, $method, $url, $options);
             }
@@ -69,7 +75,7 @@ final class RecorderHttpClient implements HttpClientInterface
     /**
      * @throws TransportExceptionInterface
      */
-    private function playback(HarFile $har, string $method, string $url, array $options): ResponseInterface
+    private function replay(HarFile $har, string $method, string $url, array $options): ResponseInterface
     {
         $response = $har->findEntry($this->matcher, $method, $url, $options);
 
