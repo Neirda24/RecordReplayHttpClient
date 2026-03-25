@@ -61,7 +61,7 @@ final class RecorderHttpClient implements HttpClientInterface
             return $this->record($har, $method, $url, $options);
         }
 
-        if (RecorderMode::RECORD_IF_MISSING_AND_REPLAY === self::$mode) {
+        if (RecorderMode::REPLAY_AND_RECORD_IF_MISSING === self::$mode) {
             try {
                 return $this->replay($har, $method, $url, $options);
             } catch (TransportException) {
